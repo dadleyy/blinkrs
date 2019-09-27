@@ -3,6 +3,16 @@ name = "blinkrs"
 version = "0.1.0"
 authors = ["Danny Hadley <dadleyy@gmail.com>"]
 edition = "2018"
+description = "A small api for interacting with blink(1) LED lights."
+keywords = ["blink(1)"]
+license = "MIT"
+homepage = "https://github.com/dadleyy/blinkrs"
+repository = "https://github.com/dadleyy/blinkrs.git"
+readme = "README.md"
+
+[badges]
+
+travis-ci = { repository = "dadleyy/blinkrs", branch = "master" }
 
 [lib]
 name = "blinkrs"
