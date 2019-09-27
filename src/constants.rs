@@ -1,0 +1,14 @@
+pub const PRODUCT_ID: u16 = 0x01ed;
+pub const VENDOR_ID: u16 = 0x27b8;
+
+pub const COLOR_CONTROL_REQUEST_TYPE: u8 = (0x001 << 5) | 0x01 | 0x00;
+pub const COLOR_CONTROL_REQUEST: u8 = 0x09;
+pub const COLOR_CONTROL_REQUEST_VALUE: u16 = (0x03 << 0x08) | (0x63 & 0xff);
+pub const COLOR_CONTROL: (u8, u8, u16) = (
+    COLOR_CONTROL_REQUEST_TYPE,
+    COLOR_CONTROL_REQUEST,
+    COLOR_CONTROL_REQUEST_VALUE,
+);
+
+pub const FADE_COMMAND_ACTION: u8 = 0x63;
+pub const IMMEDIATE_COMMAND_ACTION: u8 = 0x6e;
