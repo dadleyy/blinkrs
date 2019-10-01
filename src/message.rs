@@ -2,6 +2,7 @@ use super::constants::{FADE_COMMAND_ACTION, IMMEDIATE_COMMAND_ACTION};
 use super::Color;
 use std::time::Duration;
 
+#[derive(Debug, Copy, Clone)]
 pub enum Message {
     Off,
     Fade(Color, Duration),
