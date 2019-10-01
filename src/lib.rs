@@ -1,16 +1,38 @@
+//! This crate provides a lightweight wrapped around the [libusb](https://github.com/dcuddeback/libusb-rs) crate
+//! specifically targeting the API of a [blink(1)](https://blink1.thingm.com) usb device.
+//!
+//! ## Example
+//!
+//! ```
+//! extern crate libusb;
+//!
+//! use std::boxed::Box;
+//! use std::error::Error;
+//! use std::io::stdin;
+//!
+//! use blinkrs::{Blinkers, Message};
+//!
+//! fn main() -> Result<(), Box<dyn Error>> {
+//!     let blinkers: Blinkers = Blinkers::new()?;
+//!     blinkers.send(Message::from("red"))?;
+//!     blinkers.send(Message::from("off"))?;
+//!     Ok(())
+//! }
+//! ```
+
 use libusb::{Context, Device, DeviceHandle};
 use std::fmt;
 use std::time::Duration;
 
-pub mod color;
-mod constants;
-pub mod error;
-pub mod message;
-
-use color::Color;
+pub use color::Color;
 use constants::{COLOR_CONTROL, PRODUCT_ID, VENDOR_ID};
-use error::BlinkError;
-use message::Message;
+pub use error::BlinkError;
+pub use message::Message;
+
+mod color;
+mod constants;
+mod error;
+mod message;
 
 fn is_blinker(device: &Device) -> bool {
     if let Ok(desc) = device.device_descriptor() {
@@ -21,13 +43,14 @@ fn is_blinker(device: &Device) -> bool {
 }
 
 fn send(handle: &DeviceHandle, message: &Message) -> Result<usize, BlinkError> {
-    let buffer: &[u8] = &message.buffer();
+    let buffer = message.buffer();
     let time = Duration::new(0, 100);
     let (request_type, request, request_value) = COLOR_CONTROL;
-    let size = handle.write_control(request_type, request, request_value, 0x00, buffer, time)?;
+    let size = handle.write_control(request_type, request, request_value, 0x00, &buffer, time)?;
     Ok(size)
 }
 
+/// Wraps the [`libusb::Context`](https://docs.rs/libusb/0.3.0/libusb/struct.Context.html) type.
 pub struct Blinkers {
     context: Context,
 }

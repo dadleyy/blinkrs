@@ -2,6 +2,7 @@ use super::constants::{FADE_COMMAND_ACTION, IMMEDIATE_COMMAND_ACTION};
 use super::Color;
 use std::time::Duration;
 
+/// Represents a command processable by the specification outlined in the [blink1 docs](https://git.io/JenDr).
 #[derive(Debug, Copy, Clone)]
 pub enum Message {
     Off,
@@ -10,6 +11,8 @@ pub enum Message {
 }
 
 impl Message {
+    /// Returns the buffer that will be written to the blink(1) usb device based on the specification
+    /// outlined in the [blink1 docs](https://git.io/JenDr).
     pub fn buffer(&self) -> [u8; 8] {
         match self {
             Message::Off => Message::Immediate(Color::Three(0x00, 0x00, 0x00)).buffer(),

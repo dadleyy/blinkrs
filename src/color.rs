@@ -1,3 +1,6 @@
+/// Represents a color mode that can be applied to the [`blink(1)`] LED light.
+///
+/// [`blink(1)`]: https://blink1.thingm.com
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Color {
     Three(u8, u8, u8),
@@ -7,6 +10,8 @@ pub enum Color {
 }
 
 impl Color {
+    /// Returns a three element tuple of bytes representing a value of the red, green and blue
+    /// components of a color in the0-255 range.
     pub fn rgb(self) -> (u8, u8, u8) {
         match self {
             Color::Three(red, green, blue) => (red, green, blue),
@@ -19,7 +24,7 @@ impl Color {
 
 #[cfg(test)]
 mod tests {
-    use super::Color::{Three,Red,Blue,Green};
+    use super::Color::{Blue, Green, Red, Three};
 
     #[test]
     fn test_red() {
