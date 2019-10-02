@@ -4,8 +4,7 @@ use std::boxed::Box;
 use std::error::Error;
 use std::io::stdin;
 
-use blinkrs::message::Message;
-use blinkrs::Blinkers;
+use blinkrs::{Blinkers, Message};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let blinkers: Blinkers = Blinkers::new()?;
