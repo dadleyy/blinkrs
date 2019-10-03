@@ -1,14 +1,11 @@
-//! This crate provides a lightweight wrapped around the [libusb](https://github.com/dcuddeback/libusb-rs) crate
-//! specifically targeting the API of a [blink(1)](https://blink1.thingm.com) usb device.
+//! This crate provides a lightweight wrapper around the [libusb](https://github.com/dcuddeback/libusb-rs) crate
+//! specifically targeting the API of a [blink(1)] usb device.
 //!
 //! ## Example
 //!
 //! ```
-//! extern crate libusb;
-//!
 //! use std::boxed::Box;
 //! use std::error::Error;
-//! use std::io::stdin;
 //!
 //! use blinkrs::{Blinkers, Message};
 //!
@@ -25,6 +22,8 @@
 //!     Ok(())
 //! }
 //! ```
+//!
+//! [blink(1)]: https://blink1.thingm.com
 
 use libusb::{Context, Device, DeviceHandle};
 use std::fmt;

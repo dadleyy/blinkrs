@@ -7,11 +7,8 @@ A rust cli tool for controlling the [blink(1)](https://blink1.thingm.com) USB LE
 ### Example
 
 ```rs
-extern crate libusb;
-
 use std::boxed::Box;
 use std::error::Error;
-use std::io::stdin;
 
 use blinkrs::{Blinkers, Message};
 
