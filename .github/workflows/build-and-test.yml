@@ -1,4 +1,4 @@
-name: actions-ci
+name: gh.build-and-test
 on: [push]
 jobs:
   build:
