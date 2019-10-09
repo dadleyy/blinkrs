@@ -10,9 +10,6 @@ homepage = "https://github.com/dadleyy/blinkrs"
 repository = "https://github.com/dadleyy/blinkrs.git"
 readme = "README.md"
 
-[badges]
-travis-ci = { repository = "dadleyy/blinkrs", branch = "master" }
-
 [lib]
 name = "blinkrs"
 path = "src/lib.rs"
