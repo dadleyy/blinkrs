@@ -3,7 +3,7 @@
 //!
 //! ## Example
 //!
-//! ```
+//! ```rust
 //! use std::boxed::Box;
 //! use std::error::Error;
 //!
@@ -25,12 +25,12 @@
 //!
 //! [blink(1)]: https://blink1.thingm.com
 
-use libusb::{Context, Device, DeviceHandle};
+use libusb::{Context, Device, DeviceHandle, request_type, Direction, RequestType, Recipient};
 use std::fmt;
 use std::time::Duration;
 
 pub use color::Color;
-use constants::{COLOR_CONTROL, PRODUCT_ID, VENDOR_ID};
+use constants::{HID_SET_REPORT, HID_FEATURE, PRODUCT_ID, VENDOR_ID};
 pub use error::BlinkError;
 pub use message::Message;
 
@@ -41,18 +41,31 @@ mod message;
 
 fn is_blinker(device: &Device) -> bool {
     if let Ok(desc) = device.device_descriptor() {
-        return desc.product_id() == PRODUCT_ID && desc.vendor_id() == VENDOR_ID;
+        return desc.num_configurations() > 0 && desc.product_id() == PRODUCT_ID && desc.vendor_id() == VENDOR_ID;
     }
 
     false
 }
 
-fn send(handle: &DeviceHandle, message: &Message) -> Result<usize, BlinkError> {
+fn send(device: &Device, message: &Message) -> Result<usize, BlinkError> {
+    let config = device.active_config_descriptor()?;
+    let mut handle: DeviceHandle = device.open()?;
+    let interface_num = config.interfaces().nth(0).ok_or(BlinkError::NotFound)?.number();
+
+    if let Ok(active) = handle.kernel_driver_active(interface_num) {
+        if active {
+            handle.detach_kernel_driver(interface_num)?;
+        }
+    }
+
+    handle.claim_interface(interface_num)?;
     let buffer = message.buffer();
     let time = Duration::new(0, 100);
-    let (request_type, request, request_value) = COLOR_CONTROL;
-    let size = handle.write_control(request_type, request, request_value, 0x00, &buffer, time)?;
-    Ok(size)
+    let r_type = request_type(Direction::Out, RequestType::Class, Recipient::Interface);
+    let request_value: u16 = HID_FEATURE | (buffer[0] as u16);
+    let out = handle.write_control(r_type, HID_SET_REPORT, request_value, 0x00, &buffer, time);
+    handle.release_interface(interface_num)?;
+    out.map_err(|e| BlinkError::from(e))
 }
 
 /// Wraps the [`libusb::Context`](https://docs.rs/libusb/0.3.0/libusb/struct.Context.html) type.
@@ -67,31 +80,26 @@ impl fmt::Debug for Blinkers {
 }
 
 impl Blinkers {
+    fn from_context(ctx: Context) -> Self {
+        Blinkers { context: ctx }
+    }
+
     pub fn new() -> Result<Self, BlinkError> {
         let context: Context = Context::new()?;
-        if let Ok(d) = context.devices() {
-            if d.iter().filter(|d| is_blinker(d)).count() == 0 {
-                return Err(BlinkError::NotFound);
-            }
-        }
-        Ok(Blinkers { context })
+        Ok(Blinkers::from_context(context))
     }
 
     pub fn send(&self, cmd: Message) -> Result<usize, BlinkError> {
         let devices = self.context.devices()?;
-        let blinkers = devices
+        devices
             .iter()
-            .filter(|d| is_blinker(d))
-            .map(|d| d.open())
-            .flatten()
+            .filter(is_blinker)
             .map(|d| send(&d, &cmd))
-            .flatten()
-            .collect::<Vec<usize>>();
-        Ok(blinkers.len())
+            .collect::<Result<Vec<usize>, BlinkError>>().map(|d| d.iter().sum())
     }
 
     pub fn device_count(&self) -> Result<usize, BlinkError> {
         let devices = self.context.devices()?;
-        Ok(devices.iter().filter(|d| is_blinker(d)).count())
+        Ok(devices.iter().filter(is_blinker).count())
     }
 }

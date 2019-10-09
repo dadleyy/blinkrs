@@ -6,7 +6,7 @@ A rust cli tool for controlling the [blink(1)](https://blink1.thingm.com) USB LE
 
 ### Example
 
-```rs
+```rust
 use std::boxed::Box;
 use std::error::Error;
 
