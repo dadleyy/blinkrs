@@ -3,6 +3,7 @@ name: 'Bug Report'
 about: 'Report something that appears to be having incorrectly with the blinkrs library'
 labels: bug
 assignees: dadleyy
+
 ---
 
 <describe your bug here>
