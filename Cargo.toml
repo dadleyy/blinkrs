@@ -1,6 +1,6 @@
 [package]
 name = "blinkrs"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Danny Hadley <dadleyy@gmail.com>"]
 edition = "2018"
 description = "A small api for interacting with blink(1) LED lights."
@@ -18,6 +18,9 @@ travis-ci = { repository = "dadleyy/blinkrs", branch = "master" }
 name = "blinkrs"
 path = "src/lib.rs"
 
-[dependencies]
+[[bin]]
+name = "blinkrs"
+path = "src/bin/main.rs"
 
+[dependencies]
 libusb = "0.3"

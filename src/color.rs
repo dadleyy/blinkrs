@@ -22,6 +22,17 @@ impl Color {
     }
 }
 
+impl From<&str> for Color {
+    fn from(input: &str) -> Self {
+        match input {
+            "red" => Color::Red,
+            "green" => Color::Green,
+            "blue" => Color::Blue,
+            _ => Color::Three(0x00, 0x00, 0x00),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Color::{Blue, Green, Red, Three};

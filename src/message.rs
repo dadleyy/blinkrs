@@ -16,9 +16,13 @@ impl Message {
     pub fn buffer(&self) -> [u8; 8] {
         match self {
             Message::Off => Message::Immediate(Color::Three(0x00, 0x00, 0x00)).buffer(),
-            Message::Fade(color, _duration) => {
+            Message::Fade(color, duration) => {
                 let (r, g, b) = color.rgb();
-                [0x01, FADE_COMMAND_ACTION, r, g, b, 0x00, 0x00, 0x00]
+                // Divide by 10 and truncate into two parts
+                let dms = duration.as_millis().checked_div(10).unwrap_or(0) as u16;
+                let th = dms.checked_shr(8).unwrap_or(0) as u8;
+                let tl = dms.checked_rem(0xff).unwrap_or(0) as u8;
+                [0x01, FADE_COMMAND_ACTION, r, g, b, th, tl, 0x00]
             }
             Message::Immediate(color) => {
                 let (r, g, b) = color.rgb();
@@ -30,12 +34,7 @@ impl Message {
 
 impl From<&str> for Message {
     fn from(input: &str) -> Self {
-        match input {
-            "red" => Message::Immediate(Color::Red),
-            "blue" => Message::Immediate(Color::Blue),
-            "green" => Message::Immediate(Color::Green),
-            _ => Message::Off,
-        }
+        Message::Immediate(Color::from(input))
     }
 }
 
