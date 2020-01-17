@@ -16,6 +16,8 @@ fn parse_bits(bits: (&str, &str, &str, &str)) -> Result<Message, std::num::Parse
 fn main() -> Result<(), Box<dyn Error>> {
   let blinkers: Blinkers = Blinkers::new()?;
 
+  println!("found {:?} devices", blinkers.device_count());
+
   loop {
     let mut message = String::new();
     println!("input command (red|blue|green|exit):");

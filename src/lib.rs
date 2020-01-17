@@ -58,13 +58,11 @@ fn send(device: &Device, message: &Message) -> Result<usize, BlinkError> {
     }
   }
 
-  handle.claim_interface(interface_num)?;
   let buffer = message.buffer();
   let time = Duration::new(0, 100);
   let r_type = request_type(Direction::Out, RequestType::Class, Recipient::Interface);
   let request_value: u16 = HID_FEATURE | (buffer[0] as u16);
   let out = handle.write_control(r_type, HID_SET_REPORT, request_value, 0x00, &buffer, time);
-  handle.release_interface(interface_num)?;
   out.map_err(|e| BlinkError::from(e))
 }
 
