@@ -19,4 +19,4 @@ name = "blinkrs"
 path = "src/bin/main.rs"
 
 [dependencies]
-libusb = "0.3"
+rusb = "0.6.5"

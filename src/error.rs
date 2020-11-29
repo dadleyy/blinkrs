@@ -1,16 +1,14 @@
-extern crate libusb;
-
 use std::error::Error;
 use std::fmt;
 
 #[derive(Debug)]
 pub enum BlinkError {
   NotFound,
-  DeviceListError(libusb::Error),
+  DeviceListError(rusb::Error),
 }
 
-impl From<libusb::Error> for BlinkError {
-  fn from(error: libusb::Error) -> Self {
+impl From<rusb::Error> for BlinkError {
+  fn from(error: rusb::Error) -> Self {
     BlinkError::DeviceListError(error)
   }
 }
