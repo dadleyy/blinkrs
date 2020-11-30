@@ -1,4 +1,4 @@
-//! This crate provides a lightweight wrapper around the [libusb](https://github.com/dcuddeback/libusb-rs) crate
+//! This crate provides a lightweight wrapper around the [rusb](https://github.com/a1ien/rusb) crate
 //! specifically targeting the API of a [blink(1)] usb device.
 //!
 //! ## Example
@@ -25,7 +25,7 @@
 //!
 //! [blink(1)]: https://blink1.thingm.com
 
-use libusb::{request_type, Context, Device, DeviceHandle, Direction, Recipient, RequestType};
+use rusb::{request_type, Context, Device, DeviceHandle, Direction, Recipient, RequestType, UsbContext};
 use std::fmt;
 use std::time::Duration;
 
@@ -39,7 +39,7 @@ mod constants;
 mod error;
 mod message;
 
-fn is_blinker(device: &Device) -> bool {
+fn is_blinker(device: &Device<Context>) -> bool {
   if let Ok(desc) = device.device_descriptor() {
     return desc.num_configurations() > 0 && desc.product_id() == PRODUCT_ID && desc.vendor_id() == VENDOR_ID;
   }
@@ -47,9 +47,9 @@ fn is_blinker(device: &Device) -> bool {
   false
 }
 
-fn send(device: &Device, message: &Message) -> Result<usize, BlinkError> {
+fn send(device: &Device<Context>, message: &Message) -> Result<usize, BlinkError> {
   let config = device.active_config_descriptor()?;
-  let mut handle: DeviceHandle = device.open()?;
+  let mut handle: DeviceHandle<Context> = device.open()?;
   let interface_num = config.interfaces().nth(0).ok_or(BlinkError::NotFound)?.number();
 
   if let Ok(active) = handle.kernel_driver_active(interface_num) {
@@ -66,7 +66,7 @@ fn send(device: &Device, message: &Message) -> Result<usize, BlinkError> {
   out.map_err(|e| BlinkError::from(e))
 }
 
-/// Wraps the [`libusb::Context`](https://docs.rs/libusb/0.3.0/libusb/struct.Context.html) type.
+/// Wraps the [`rusb::Context`](rusb::Context) type.
 pub struct Blinkers {
   context: Context,
 }
