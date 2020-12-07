@@ -40,11 +40,10 @@ mod error;
 mod message;
 
 fn is_blinker(device: &Device<Context>) -> bool {
-  if let Ok(desc) = device.device_descriptor() {
-    return desc.num_configurations() > 0 && desc.product_id() == PRODUCT_ID && desc.vendor_id() == VENDOR_ID;
-  }
-
-  false
+  device
+    .device_descriptor()
+    .map(|desc| desc.num_configurations() > 0 && desc.product_id() == PRODUCT_ID && desc.vendor_id() == VENDOR_ID)
+    .unwrap_or(false)
 }
 
 fn send(device: &Device<Context>, message: &Message) -> Result<usize, BlinkError> {
