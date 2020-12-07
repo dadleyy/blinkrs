@@ -1,3 +1,4 @@
+// USB device descriptors taken from https://git.io/JI4nK
 pub const PRODUCT_ID: u16 = 0x01ed;
 pub const VENDOR_ID: u16 = 0x27b8;
 
