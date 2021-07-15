@@ -1,6 +1,6 @@
 [package]
 name = "blinkrs"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Danny Hadley <dadleyy@gmail.com>"]
 edition = "2018"
 description = "A small api for interacting with blink(1) LED lights."
