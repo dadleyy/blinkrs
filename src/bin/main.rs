@@ -10,7 +10,40 @@ fn parse_bits(bits: (&str, &str, &str, &str)) -> Result<Message, std::num::Parse
   let red = bits.1.parse::<u8>()?;
   let green = bits.2.parse::<u8>()?;
   let blue = bits.3.parse::<u8>()?;
-  Ok(Message::Fade(Color::Three(red, green, blue), Duration::new(secs, 0)))
+  Ok(Message::Fade(
+    Color::Three(red, green, blue),
+    Duration::new(secs, 0),
+    None,
+  ))
+}
+
+fn zip<E, T, U>(first: Result<T, E>, second: Result<U, E>) -> Result<(T, U), E> {
+  first.and_then(|a| second.map(|b| (a, b)))
+}
+
+fn parse<S>(input: S) -> Option<Message>
+where
+  S: AsRef<str>,
+{
+  let bits = input.as_ref().split(" ").collect::<Vec<&str>>();
+
+  match bits[..] {
+    ["i", i, r, g, b] => {
+      let index = i.parse::<u8>();
+      let red = r.parse::<u8>();
+      let green = g.parse::<u8>();
+      let blue = b.parse::<u8>();
+      let color = zip(zip(red, green), blue).map(|((r, g), b)| Color::Three(r, g, b));
+      let message = zip(index, color).map(|(index, color)| Message::Immediate(color, Some(index)));
+      message.ok()
+    }
+    [one, red_str, green_str, blue_str] => parse_bits((one, red_str, green_str, blue_str)).ok(),
+    [one, two] => {
+      let dur = one.parse::<u64>().map(Duration::from_secs).ok()?;
+      Some(Message::Fade(Color::from(two), dur, None))
+    }
+    _ => Some(Message::from(input.as_ref())),
+  }
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -35,29 +68,10 @@ fn main() -> Result<(), Box<dyn Error>> {
       return Ok(());
     }
 
-    let bits = trimmed.split(" ").collect::<Vec<&str>>();
-
-    let msg = match bits[..] {
-      [one, red_str, green_str, blue_str] => match parse_bits((one, red_str, green_str, blue_str)) {
-        Ok(m) => m,
-        Err(e) => {
-          println!("[error] unable to parse bits: {:?}", e);
-          continue;
-        }
-      },
-      [one, two] => {
-        let dur = match one.parse::<u64>() {
-          Ok(t) => Duration::new(t, 0),
-          Err(e) => {
-            println!("[err] unable to parse time: {}", e);
-            continue;
-          }
-        };
-        println!("[debug] found fade {} for color {}", one, two);
-        Message::Fade(Color::from(two), dur)
-      }
-      _ => Message::from(trimmed),
-    };
+    let msg = parse(&trimmed).unwrap_or_else(|| {
+      println!("[warning] no message for '{}', sending OFF", trimmed);
+      Message::default()
+    });
 
     if let Err(e) = blinkers.send(msg) {
       println!("[err] unable to send: {:?}", e);

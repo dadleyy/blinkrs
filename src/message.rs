@@ -6,8 +6,14 @@ use std::time::Duration;
 #[derive(Debug, Copy, Clone)]
 pub enum Message {
   Off,
-  Fade(Color, Duration),
-  Immediate(Color),
+  Fade(Color, Duration, Option<u8>),
+  Immediate(Color, Option<u8>),
+}
+
+impl Default for Message {
+  fn default() -> Self {
+    Self::Off
+  }
 }
 
 impl Message {
@@ -15,18 +21,19 @@ impl Message {
   /// outlined in the [blink1 docs](https://git.io/JenDr).
   pub fn buffer(&self) -> [u8; 8] {
     match self {
-      Message::Off => Message::Immediate(Color::Three(0x00, 0x00, 0x00)).buffer(),
-      Message::Fade(color, duration) => {
+      Message::Off => Message::Immediate(Color::Three(0x00, 0x00, 0x00), None).buffer(),
+      Message::Fade(color, duration, index) => {
         let (r, g, b) = color.rgb();
         // Divide by 10 and truncate into two parts
         let dms = duration.as_millis().checked_div(10).unwrap_or(0) as u16;
         let th = dms.checked_shr(8).unwrap_or(0) as u8;
         let tl = dms.checked_rem(0xff).unwrap_or(0) as u8;
-        [0x01, FADE_COMMAND_ACTION, r, g, b, th, tl, 0x00]
+        [0x01, FADE_COMMAND_ACTION, r, g, b, th, tl, index.unwrap_or(0x00)]
       }
-      Message::Immediate(color) => {
+      Message::Immediate(color, index) => {
         let (r, g, b) = color.rgb();
-        [0x01, IMMEDIATE_COMMAND_ACTION, r, g, b, 0x00, 0x00, 0x00]
+        let i = index.unwrap_or(0);
+        [0x01, IMMEDIATE_COMMAND_ACTION, r, g, b, 0x00, 0x00, i]
       }
     }
   }
@@ -34,13 +41,31 @@ impl Message {
 
 impl From<&str> for Message {
   fn from(input: &str) -> Self {
-    Message::Immediate(Color::from(input))
+    Message::Immediate(Color::from(input), None)
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::Message;
+  use super::{Color, Message};
+
+  #[test]
+  fn test_index_fade() {
+    let red = Message::Fade(Color::from("red"), std::time::Duration::from_secs(1), Some(1));
+    assert_eq!(red.buffer()[7], 0x01);
+  }
+
+  #[test]
+  fn test_index_now() {
+    let red = Message::Immediate(Color::from("red"), Some(10));
+    assert_eq!(red.buffer()[7], 0x0A);
+  }
+
+  #[test]
+  fn test_noindex() {
+    let red = Message::from("red");
+    assert_eq!(red.buffer()[7], 0x00);
+  }
 
   #[test]
   fn test_red() {
