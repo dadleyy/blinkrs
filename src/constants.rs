@@ -6,5 +6,6 @@ pub const VENDOR_ID: u16 = 0x27b8;
 pub const HID_SET_REPORT: u8 = 0x09;
 pub const HID_FEATURE: u16 = 0x03 << 0x08;
 
-pub const FADE_COMMAND_ACTION: u8 = 0x63;
-pub const IMMEDIATE_COMMAND_ACTION: u8 = 0x6e;
+// Full command list can be found at github.com/todbot/blink1/blob/9bec7d35/hardware/firmware_mk2/main.c#L477-L490.
+pub const FADE_COMMAND_ACTION: u8 = 0x63; // 'c'
+pub const IMMEDIATE_COMMAND_ACTION: u8 = 0x6e; // 'n'
