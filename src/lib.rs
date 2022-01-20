@@ -72,7 +72,6 @@ fn send(device: &Device<Context>, message: &Message) -> Result<usize, BlinkError
   }
 
   let buffer = message.buffer();
-  println!("[debug] sending buffer {:?}", buffer);
   let time = Duration::new(0, 100);
   let r_type = request_type(Direction::Out, RequestType::Class, Recipient::Interface);
   let request_value: u16 = HID_FEATURE | (buffer[0] as u16);
