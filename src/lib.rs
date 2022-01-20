@@ -23,7 +23,21 @@
 //! }
 //! ```
 //!
+//! #### Extending The blink(1) Device
+//!
+//! The blink(1) device supports the control of additional lights by using three connections (ground, power, and data)
+//! exposed under the "diffuser" cap of the enclosure. A tutorial for adding a Neopixel strip can be found in [this
+//! blog post][b].
+//!
+//! To accomodate these setups, the `Message` kind carries an optional "index" -
+//!
+//! ```rust
+//! use blinkrs::{Message,Color};
+//! Message::Immediate(Color::from("red"), Some(10));
+//! ```
+//!
 //! [blink(1)]: https://blink1.thingm.com
+//! [b]: https://thingm.com/blog/2017/12/using-the-blink1-mk2-led-strip-adapter
 
 use rusb::{request_type, Context, Device, DeviceHandle, Direction, Recipient, RequestType, UsbContext};
 use std::fmt;
