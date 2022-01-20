@@ -28,6 +28,18 @@ where
   let bits = input.as_ref().split(" ").collect::<Vec<&str>>();
 
   match bits[..] {
+    ["i", i, f, r, g, b] => {
+      let index = i.parse::<u8>();
+      let fade = f.parse::<u64>();
+      let red = r.parse::<u8>();
+      let green = g.parse::<u8>();
+      let blue = b.parse::<u8>();
+      let color = zip(zip(red, green), blue).map(|((r, g), b)| Color::Three(r, g, b));
+      let message = zip(zip(fade, index), color)
+        .map(|((fade, index), color)| Message::Fade(color, Duration::from_millis(fade), Some(index)));
+      message.ok()
+    }
+
     ["i", i, r, g, b] => {
       let index = i.parse::<u8>();
       let red = r.parse::<u8>();

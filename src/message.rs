@@ -30,10 +30,14 @@ impl Message {
         let tl = dms.checked_rem(0xff).unwrap_or(0) as u8;
         [0x01, FADE_COMMAND_ACTION, r, g, b, th, tl, index.unwrap_or(0x00)]
       }
-      Message::Immediate(color, index) => {
+      // NOTE: immediate sets with index is not supported, recommended workaround:
+      // https://github.com/todbot/blink1/issues/251
+      Message::Immediate(color, Some(index)) => {
+        Message::Fade(color.clone(), Duration::from_millis(0), Some(*index)).buffer()
+      }
+      Message::Immediate(color, None) => {
         let (r, g, b) = color.rgb();
-        let i = index.unwrap_or(0);
-        [0x01, IMMEDIATE_COMMAND_ACTION, r, g, b, 0x00, 0x00, i]
+        [0x01, IMMEDIATE_COMMAND_ACTION, r, g, b, 0x00, 0x00, 0]
       }
     }
   }
