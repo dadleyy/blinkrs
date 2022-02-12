@@ -71,6 +71,8 @@ fn send(device: &Device<Context>, message: &Message) -> Result<usize, BlinkError
     }
   }
 
+  handle.claim_interface(interface_num)?;
+
   let buffer = message.buffer();
   let time = Duration::new(0, 100);
   let r_type = request_type(Direction::Out, RequestType::Class, Recipient::Interface);
